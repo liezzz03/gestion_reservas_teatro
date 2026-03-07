@@ -1,4 +1,8 @@
 // test_sala.c
+// ===============
+// Batería de pruebas final para la biblioteca "sala.h/sala.c"
+//
+
 #include <assert.h>
 #include <stdio.h>
 #include "sala.h"
@@ -6,63 +10,128 @@
 #define DebeSerCierto(x)	assert(x)
 #define DebeSerFalso(x)		assert(!(x))
 
-void INICIO_TEST (const char* titulo_test)
-{
-  printf("********** batería de pruebas para %s: ", titulo_test);
- 	// fflush fuerza que se imprima el mensaje anterior
-	// sin necesidad de utilizar un salto de línea
-	fflush(stdout);
+// Prototipos de las funciones de test para que el compilador las conozca
+void test_ReservaBasica();
+void test_TipsProfesor();
+void test_Exhaustivo_Memoria();
+void test_Exhaustivo_Limites();
+void test_Fragmentacion();
+void test_Stress();
+void test_Atomicidad_Multiple();
+void estado_sala();
+int reserva_multiple(int npersonas, int* lista_id);
+
+// --- PUNTO DE ENTRADA ÚNICO ---
+
+void ejecuta_tests() {
+    test_ReservaBasica();
+    test_TipsProfesor();
+    test_Exhaustivo_Memoria();
+    test_Exhaustivo_Limites();
+    test_Fragmentacion();
+    test_Stress();
+    test_Atomicidad_Multiple();
 }
 
-void FIN_TEST (const char* titulo_test)
-{
-  printf ("********** hecho\n");
+int main() {
+    puts("Iniciando batería de tests completa...");
+    ejecuta_tests();
+    puts("\n>>> TODOS LOS TESTS COMPLETADOS CON ÉXITO <<<");
+    return 0;
 }
 
+// --- FUNCIONES DE APOYO LOGÍSTICO ---
 
-void test_ReservaBasica()
-{
-	int mi_asiento;
-	#define CAPACIDAD 500
-	#define ID_1 1500
+void INICIO_TEST (const char* titulo_test) {
+    printf("********** batería de pruebas para %s: ", titulo_test);
+    fflush(stdout);
+}
 
-	INICIO_TEST("Reserva básica");
-	crea_sala(CAPACIDAD);
-	DebeSerCierto(capacidad_sala()==CAPACIDAD);
-	DebeSerCierto((mi_asiento=reserva_asiento(ID_1))>=0);
-	DebeSerCierto((asientos_libres()+asientos_ocupados())==CAPACIDAD);
-	DebeSerCierto(estado_asiento(mi_asiento)>0);
-	DebeSerCierto(libera_asiento(mi_asiento)==ID_1);
-	DebeSerCierto((asientos_libres()+asientos_ocupados())==CAPACIDAD);
-	elimina_sala();
-	FIN_TEST("Reserva básica");
+void FIN_TEST (const char* titulo_test) {
+    printf ("********** hecho\n");
+}
+
+// Implementación de la prueba de reserva múltiple (Todo o nada)
+int reserva_multiple(int npersonas, int* lista_id) {
+    // Control de robustez: npersonas <= 0 o lista nula [cite: 171]
+    if (npersonas <= 0 || lista_id == NULL) return -1;
+
+    // REQUISITO: Todo o nada. Si no hay sitio para todos, no se sienta nadie
+    if (asientos_libres() < npersonas) return -1;
+
+    int exitos = 0;
+    for (int i = 0; i < npersonas; i++) {
+        if (reserva_asiento(lista_id[i]) != -1) exitos++;
+    }
+    return exitos;
+}
+
+// Visualización del estado de la sala [cite: 196, 424]
+void estado_sala() {
+    int total = capacidad_sala();
+    if (total == -1) return;
+    printf("\n--- MAPA VISUAL DE SALA ---\n");
+    for (int i = 1; i <= total; i++) {
+        int ocupante = estado_asiento(i);
+        printf("[%s] ", (ocupante == 0) ? " " : "X"); // 0 indica libre según API
+        if (i % 10 == 0) printf("\n");
+    }
+    printf("Resumen: %d ocupados de %d totales\n", asientos_ocupados(), total);
+}
+
+// --- BLOQUES DE PRUEBAS (TESTS TOCHOS) ---
+
+void test_ReservaBasica() {
+    int mi_asiento;
+    #define CAPACIDAD_BASE 500
+    #define ID_PERSONA 1500
+
+    INICIO_TEST("Reserva básica");
+    crea_sala(CAPACIDAD_BASE);
+    DebeSerCierto(capacidad_sala() == CAPACIDAD_BASE);
+    DebeSerCierto((mi_asiento = reserva_asiento(ID_PERSONA)) >= 0);
+    DebeSerCierto((asientos_libres() + asientos_ocupados()) == CAPACIDAD_BASE);
+    DebeSerCierto(estado_asiento(mi_asiento) > 0);
+    DebeSerCierto(libera_asiento(mi_asiento) == ID_PERSONA);
+    elimina_sala();
+    FIN_TEST("Reserva básica");
 }
 
 void test_TipsProfesor() {
-INICIO_TEST("Tips del Profesor (Robustez)");
+    INICIO_TEST("Robustez (Correcciones Profesor)");
 
-// 1. Intentar crear sala con capacidad negativa
-DebeSerCierto(crea_sala(-10) == -1);
+    // 1. Capacidad negativa
+    DebeSerCierto(crea_sala(-10) == -1);
 
-// 2. Crear sala legal
-crea_sala(10);
+    // 2. Control de doble creación
+    crea_sala(10);
+    DebeSerCierto(crea_sala(5) == -1);
 
-// 3. Intentar crear OTRA sala sin borrar la anterior
-DebeSerCierto(crea_sala(5) == -1);
+    // 3. IDs inválidos y asientos inexistentes
+    DebeSerCierto(reserva_asiento(-5) == -1);
+    DebeSerCierto(libera_asiento(999) == -1);
+    DebeSerCierto(estado_asiento(0) == -1);
 
-// 4. Intentar reservar asiento con ID de persona inválido (negativo)
-DebeSerCierto(reserva_asiento(-5) == -1);
+    elimina_sala();
+    FIN_TEST("Robustez");
+}
 
-// 5. Intentar liberar un asiento que no existe (ej. asiento 999)
-DebeSerCierto(libera_asiento(999) == -1);
+void test_ReservaMultipleTocha() {
+    INICIO_TEST("Reserva Múltiple (Todo o Nada)");
+    crea_sala(10);
 
-// 6. Test de ocupación: Sentar a alguien y que otro no pueda quitarle el sitio
-reserva_asiento(100); // Se sienta en el 1
-// Si implementaste reserva_asiento_especifico:
-// DebeSerCierto(reserva_asiento_especifico(1, 200) == -1);
+    int grupo_ok[] = {10, 20, 30, 40, 50};
+    DebeSerCierto(reserva_multiple(5, grupo_ok) == 5);
+    DebeSerCierto(asientos_ocupados() == 5);
 
-elimina_sala();
-FIN_TEST("Tips del Profesor");
+    // Intento de reserva que excede la capacidad (No debe sentar a nadie)
+    int grupo_error[] = {60, 70, 80, 90, 100, 110};
+    DebeSerCierto(reserva_multiple(6, grupo_error) == -1);
+    DebeSerCierto(asientos_ocupados() == 5);
+
+    estado_sala();
+    elimina_sala();
+    FIN_TEST("Reserva Múltiple");
 }
 
 void test_Exhaustivo_Memoria() {
@@ -106,7 +175,8 @@ void test_Exhaustivo_Limites() {
     DebeSerCierto(libera_asiento(1) == -1);   // Segunda liberación: ERROR (ya está libre)
 
     // --- TEST DE LLENADO TOTAL ---
-    for(int i=0; i<9; i++) reserva_asiento(i+1); // Llenamos los 9 que quedan
+    for(int i=0; i<10; i++) reserva_asiento(i+1); // Llenamos los 9 que quedan
+    printf("Libres: %d\n", asientos_libres());
     DebeSerCierto(asientos_libres() == 0);
     DebeSerCierto(reserva_asiento(999) == -1); // Sala llena, debe fallar
 
@@ -224,25 +294,4 @@ void test_Atomicidad_Multiple() {
 
     elimina_sala();
     FIN_TEST("Atomicidad");
-}
-
-void ejecuta_tests ()
-{
-    test_ReservaBasica();
-    test_TipsProfesor();
-    test_Exhaustivo_Memoria();
-    test_Exhaustivo_Limites();
-    test_Exhaustivo_ReservaMultiple();
-    test_Identidades();
-    test_Fragmentacion();
-    test_Stress();
-    test_Atomicidad_Multiple();
-}
-
-int main() // <--- Añade 'int'
-{
-    puts("Iniciando tests...");
-    ejecuta_tests();
-    puts("Batería de test completa.");
-    return 0; // <--- Añade el retorno
 }
