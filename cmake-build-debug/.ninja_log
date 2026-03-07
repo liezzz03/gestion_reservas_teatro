@@ -1,0 +1,7 @@
+# ninja log v6
+2	282	7946112293335765	build.ninja	e17290b95176876d
+4	163	7946109804490209	CMakeFiles/gestion_reservas_teatro.dir/sala.c.obj	a980a1d73309ab89
+1	114	7946110300915682	CMakeFiles/gestion_reservas_teatro.dir/test_sala.c.obj	d068f909c712edcf
+2	347	7946112293335765	build.ninja	e17290b95176876d
+4	138	7946112293820863	CMakeFiles/gestion_reservas_teatro.dir/test_sala.c.obj	d068f909c712edcf
+139	276	7946112295172169	gestion_reservas_teatro.exe	d6dfa86569f1e7be
