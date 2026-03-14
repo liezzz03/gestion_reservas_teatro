@@ -1,20 +1,11 @@
 # ninja log v6
-2	282	7946112293335765	build.ninja	e17290b95176876d
-4	163	7946109804490209	CMakeFiles/gestion_reservas_teatro.dir/sala.c.obj	a980a1d73309ab89
-1	114	7946110300915682	CMakeFiles/gestion_reservas_teatro.dir/test_sala.c.obj	d068f909c712edcf
-2	347	7946112293335765	build.ninja	e17290b95176876d
-4	138	7946112293820863	CMakeFiles/gestion_reservas_teatro.dir/test_sala.c.obj	d068f909c712edcf
-139	276	7946112295172169	gestion_reservas_teatro.exe	d6dfa86569f1e7be
-4	112	7946117085531848	CMakeFiles/gestion_reservas_teatro.dir/sala.c.obj	a980a1d73309ab89
-113	250	7946117086615168	gestion_reservas_teatro.exe	d6dfa86569f1e7be
-4	121	7946119309836530	CMakeFiles/gestion_reservas_teatro.dir/sala.c.obj	a980a1d73309ab89
-122	287	7946119311008642	gestion_reservas_teatro.exe	d6dfa86569f1e7be
-6	120	7946121314147164	CMakeFiles/gestion_reservas_teatro.dir/sala.c.obj	a980a1d73309ab89
-120	297	7946121315294430	gestion_reservas_teatro.exe	d6dfa86569f1e7be
-4	116	7946122361520435	CMakeFiles/gestion_reservas_teatro.dir/sala.c.obj	a980a1d73309ab89
-116	243	7946122362642787	gestion_reservas_teatro.exe	d6dfa86569f1e7be
-4	142	7946126494927975	CMakeFiles/gestion_reservas_teatro.dir/sala.c.obj	a980a1d73309ab89
-143	301	7946126496310803	gestion_reservas_teatro.exe	d6dfa86569f1e7be
+2	347	7947709169475130	build.ninja	e17290b95176876d
 16	121	7946127353796296	CMakeFiles/gestion_reservas_teatro.dir/sala.c.obj	a980a1d73309ab89
 4	135	7946127353666260	CMakeFiles/gestion_reservas_teatro.dir/test_sala.c.obj	d068f909c712edcf
 135	288	7946127354987712	gestion_reservas_teatro.exe	d6dfa86569f1e7be
+25	313	7947873115461066	CMakeFiles/gestion_reservas_teatro.dir/sala.c.obj	a980a1d73309ab89
+5	317	7947873115261071	CMakeFiles/gestion_reservas_teatro.dir/test_sala.c.obj	d068f909c712edcf
+318	574	7947873118381125	gestion_reservas_teatro.exe	d6dfa86569f1e7be
+105	694	7951991571742656	CMakeFiles/gestion_reservas_teatro.dir/sala.c.obj	a980a1d73309ab89
+13	695	7951991570829036	CMakeFiles/gestion_reservas_teatro.dir/test_sala.c.obj	d068f909c712edcf
+695	931	7951991577646942	gestion_reservas_teatro.exe	d6dfa86569f1e7be

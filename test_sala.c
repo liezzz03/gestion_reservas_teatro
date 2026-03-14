@@ -19,9 +19,6 @@ void test_Fragmentacion();
 void test_Stress();
 void test_Atomicidad_Multiple();
 void estado_sala();
-int reserva_multiple(int npersonas, int* lista_id);
-
-// --- PUNTO DE ENTRADA ÚNICO ---
 
 void ejecuta_tests() {
     test_ReservaBasica();
@@ -40,8 +37,6 @@ int main() {
     return 0;
 }
 
-// --- FUNCIONES DE APOYO LOGÍSTICO ---
-
 void INICIO_TEST (const char* titulo_test) {
     printf("********** batería de pruebas para %s: ", titulo_test);
     fflush(stdout);
@@ -51,22 +46,7 @@ void FIN_TEST (const char* titulo_test) {
     printf ("********** hecho\n");
 }
 
-// Implementación de la prueba de reserva múltiple (Todo o nada)
-int reserva_multiple(int npersonas, int* lista_id) {
-    // Control de robustez: npersonas <= 0 o lista nula [cite: 171]
-    if (npersonas <= 0 || lista_id == NULL) return -1;
-
-    // REQUISITO: Todo o nada. Si no hay sitio para todos, no se sienta nadie
-    if (asientos_libres() < npersonas) return -1;
-
-    int exitos = 0;
-    for (int i = 0; i < npersonas; i++) {
-        if (reserva_asiento(lista_id[i]) != -1) exitos++;
-    }
-    return exitos;
-}
-
-// Visualización del estado de la sala [cite: 196, 424]
+// Visualización del estado de la sala
 void estado_sala() {
     int total = capacidad_sala();
     if (total == -1) return;
@@ -78,8 +58,6 @@ void estado_sala() {
     }
     printf("Resumen: %d ocupados de %d totales\n", asientos_ocupados(), total);
 }
-
-// --- BLOQUES DE PRUEBAS (TESTS TOCHOS) ---
 
 void test_ReservaBasica() {
     int mi_asiento;
@@ -100,14 +78,14 @@ void test_ReservaBasica() {
 void test_TipsProfesor() {
     INICIO_TEST("Robustez (Correcciones Profesor)");
 
-    // 1. Capacidad negativa
+    // Capacidad negativa
     DebeSerCierto(crea_sala(-10) == -1);
 
-    // 2. Control de doble creación
+    // Control de doble creación
     crea_sala(10);
     DebeSerCierto(crea_sala(5) == -1);
 
-    // 3. IDs inválidos y asientos inexistentes
+    // IDs inválidos y asientos inexistentes
     DebeSerCierto(reserva_asiento(-5) == -1);
     DebeSerCierto(libera_asiento(999) == -1);
     DebeSerCierto(estado_asiento(0) == -1);
@@ -190,17 +168,17 @@ void test_Exhaustivo_ReservaMultiple() {
     crea_sala(10);
     int personas[] = {10, 20, 30};
 
-    // 1. Reserva normal
+    // Reserva normal
     DebeSerCierto(reserva_multiple(3, personas) == 3);
     DebeSerCierto(asientos_ocupados() == 3);
 
-    // 2. Intentar reservar más de lo que queda (Quedan 7 libres, pedimos 8)
+    // Intentar reservar más de lo que queda (Quedan 7 libres, pedimos 8)
     // Según tu código actual, esto debería devolver -1 y NO sentar a nadie
     int grupo_grande[] = {1, 2, 3, 4, 5, 6, 7, 8};
     DebeSerCierto(reserva_multiple(8, grupo_grande) == -1);
     DebeSerCierto(asientos_ocupados() == 3); // Siguen siendo 3, no se movió nadie
 
-    // 3. Caso absurdo: Reserva de 0 personas o puntero nulo
+    // Reserva de 0 personas o puntero nulo
     DebeSerCierto(reserva_multiple(0, personas) == -1);
     DebeSerCierto(reserva_multiple(2, NULL) == -1);
 
@@ -212,16 +190,16 @@ void test_Identidades() {
     INICIO_TEST("Identidades y IDs conflictivos");
     crea_sala(10);
 
-    // 1. Sentar a la misma persona en varios sitios (debería permitirse según tu lógica actual)
+    // Sentar a la misma persona en varios sitios (debería permitirse según tu lógica actual)
     int id_juan = 500;
     DebeSerCierto(reserva_asiento(id_juan) == 1);
     DebeSerCierto(reserva_asiento(id_juan) == 2);
 
-    // 2. Intentar reservar con ID 0 (si tu código considera 0 como 'libre', esto es un peligro)
+    // Intentar reservar con ID 0 (si tu código considera 0 como 'libre', esto es un peligro)
     // El ID debe ser > 0 siempre.
     DebeSerCierto(reserva_asiento(0) == -1);
 
-    // 3. Intentar reservar con ID negativo
+    // Intentar reservar con ID negativo
     DebeSerCierto(reserva_asiento(-1) == -1);
 
     elimina_sala();
@@ -287,7 +265,7 @@ void test_Atomicidad_Multiple() {
     // Intentamos sentar a 4 personas donde solo caben 2
     int resultado = reserva_multiple(4, grupo);
 
-    // Si tu implementación es correcta, resultado debe ser -1
+    // Si la implementación es correcta, resultado debe ser -1
     // Y el número de ocupados debe seguir siendo 8
     DebeSerCierto(resultado == -1);
     DebeSerCierto(asientos_ocupados() == 8);
